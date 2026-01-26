@@ -1,0 +1,15 @@
+app:
+  name: example-app
+  version: 1.0.0
+
+server:
+  port: 8080
+  mode: debug
+
+log:
+  level: info
+  encoding: console
+
+database:
+  driver: sqlite
+  source: test.db
