@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"example-app/internal/api/v1"
-	"example-app/internal/models"
+	v1 "example-app/internal/api/v1"
+
 	"github.com/project/go-framework/pkg/app"
 )
 
@@ -15,9 +15,9 @@ func main() {
 	}
 
 	// Migrate database
-	if err := a.DB.AutoMigrate(&models.User{}); err != nil {
-		log.Fatalf("failed to migrate database: %v", err)
-	}
+	// if err := a.DB.AutoMigrate(&models.User{}); err != nil {
+	// 	log.Fatalf("failed to migrate database: %v", err)
+	// }
 
 	// Register routes
 	v1.RegisterRoutes(a.Server.Engine, a.DB, a.Logger)

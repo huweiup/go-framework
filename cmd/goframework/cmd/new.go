@@ -118,8 +118,8 @@ log:
   encoding: console
 
 database:
-  driver: sqlite
-  source: test.db
+  driver: mysql
+  source: ***:***@tcp(localhost:3306)/test?charset=utf8mb4&parseTime=True&loc=Local
 `
 
 const mainTemplate = `package main

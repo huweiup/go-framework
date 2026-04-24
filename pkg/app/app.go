@@ -3,10 +3,10 @@ package app
 import (
 	"fmt"
 
-	"github.com/project/go-framework/pkg/config"
-	"github.com/project/go-framework/pkg/database"
-	"github.com/project/go-framework/pkg/logger"
-	"github.com/project/go-framework/pkg/server"
+	"github.com/huweiup/go-framework/pkg/config"
+	"github.com/huweiup/go-framework/pkg/database"
+	"github.com/huweiup/go-framework/pkg/logger"
+	"github.com/huweiup/go-framework/pkg/server"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )

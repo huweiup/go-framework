@@ -4,13 +4,13 @@ go 1.25.5
 
 require (
 	github.com/gin-gonic/gin v1.11.0
-	github.com/project/go-framework v0.0.0
+	github.com/huweiup/go-framework v0.0.0
 	go.uber.org/zap v1.27.1
 	gorm.io/gorm v1.31.1
 )
 
 require (
-	filippo.io/edwards25519 v1.1.0 // indirect
+	filippo.io/edwards25519 v1.1.1 // indirect
 	github.com/bytedance/gopkg v0.1.3 // indirect
 	github.com/bytedance/sonic v1.15.0 // indirect
 	github.com/bytedance/sonic/loader v0.5.0 // indirect
@@ -58,4 +58,4 @@ require (
 	gorm.io/driver/sqlite v1.6.0 // indirect
 )
 
-replace github.com/project/go-framework => ../
+replace github.com/huweiup/go-framework => ../go-framework
