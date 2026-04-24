@@ -27,7 +27,6 @@ type AppConfig struct {
 // Application is the main container for the application components
 type Application struct {
 	Config Config
-	Logger *zap.Logger
 	DB     *gorm.DB
 	Server *server.Server
 }
@@ -40,7 +39,7 @@ func New(configPath string) (*Application, error) {
 	}
 
 	// Initialize Logger
-	log, err := logger.New(cfg.Log)
+	err := logger.New(cfg.Log)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize logger: %w", err)
 	}
@@ -52,7 +51,7 @@ func New(configPath string) (*Application, error) {
 		// For a framework, if DB config is present but fails, it should probably fail.
 		// If DB config is empty, maybe skip?
 		// For now, let's assume if it fails, it's fatal.
-		log.Error("failed to initialize database", zap.Error(err))
+		logger.Log().Error("failed to initialize database", zap.Error(err))
 		return nil, fmt.Errorf("failed to initialize database: %w", err)
 	}
 
@@ -60,11 +59,10 @@ func New(configPath string) (*Application, error) {
 	srv := server.New(cfg.Server)
 
 	// Add Logger Middleware
-	srv.Engine.Use(server.LoggerMiddleware(log))
+	srv.Engine.Use(server.LoggerMiddleware(logger.Log()))
 
 	return &Application{
 		Config: cfg,
-		Logger: log,
 		DB:     db,
 		Server: srv,
 	}, nil
@@ -72,10 +70,15 @@ func New(configPath string) (*Application, error) {
 
 // Run starts the HTTP server
 func (a *Application) Run() error {
-	a.Logger.Info("Starting application",
+	logger.Log().Info("Starting application",
 		zap.String("name", a.Config.App.Name),
 		zap.String("version", a.Config.App.Version),
 		zap.Int("port", a.Config.Server.Port),
 	)
 	return a.Server.Run()
+}
+
+func (a *Application) Close() {
+	// 刷新日志缓冲区
+	logger.Log().Sync()
 }

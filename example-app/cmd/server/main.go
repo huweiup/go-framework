@@ -5,7 +5,7 @@ import (
 
 	v1 "example-app/internal/api/v1"
 
-	"github.com/project/go-framework/pkg/app"
+	"github.com/huweiup/go-framework/pkg/app"
 )
 
 func main() {
@@ -20,7 +20,7 @@ func main() {
 	// }
 
 	// Register routes
-	v1.RegisterRoutes(a.Server.Engine, a.DB, a.Logger)
+	v1.RegisterRoutes(a.Server.Engine, a.DB)
 
 	if err := a.Run(); err != nil {
 		log.Fatalf("failed to run app: %v", err)

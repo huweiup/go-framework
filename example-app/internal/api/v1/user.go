@@ -4,8 +4,9 @@ import (
 	"net/http"
 
 	"example-app/internal/models"
+
 	"github.com/gin-gonic/gin"
-	"github.com/project/go-framework/pkg/database"
+	"github.com/huweiup/go-framework/pkg/database"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -15,10 +16,9 @@ type UserHandler struct {
 	Logger *zap.Logger
 }
 
-func RegisterRoutes(r *gin.Engine, db *gorm.DB, logger *zap.Logger) {
+func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 	h := &UserHandler{
-		Repo:   database.NewRepository[models.User](db),
-		Logger: logger,
+		Repo: database.NewRepository[models.User](db),
 	}
 
 	g := r.Group("/api/v1/users")

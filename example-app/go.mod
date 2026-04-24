@@ -4,7 +4,7 @@ go 1.25.5
 
 require (
 	github.com/gin-gonic/gin v1.11.0
-	github.com/huweiup/go-framework v0.0.0
+	github.com/huweiup/go-framework v0.0.1
 	go.uber.org/zap v1.27.1
 	gorm.io/gorm v1.31.1
 )
@@ -58,4 +58,4 @@ require (
 	gorm.io/driver/sqlite v1.6.0 // indirect
 )
 
-replace github.com/huweiup/go-framework => ../go-framework
+replace github.com/huweiup/go-framework => ../

@@ -40,17 +40,17 @@ func TestNew(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			logger, err := New(tt.config)
+			err := New(tt.config)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
-				assert.NotNil(t, logger)
+				assert.NotNil(t, Log())
 
 				// Verify level
 				if tt.config.Level != "" {
 					expectedLevel, _ := zapcore.ParseLevel(tt.config.Level)
-					assert.True(t, logger.Core().Enabled(expectedLevel))
+					assert.True(t, Log().Core().Enabled(expectedLevel))
 				}
 			}
 		})
