@@ -8,7 +8,6 @@ import (
 	"github.com/huweiup/go-framework/pkg/logger"
 	"github.com/huweiup/go-framework/pkg/server"
 	"go.uber.org/zap"
-	"gorm.io/gorm"
 )
 
 // Config holds the complete configuration for the application
@@ -27,7 +26,6 @@ type AppConfig struct {
 // Application is the main container for the application components
 type Application struct {
 	Config Config
-	DB     *gorm.DB
 	Server *server.Server
 }
 
@@ -45,7 +43,7 @@ func New(configPath string) (*Application, error) {
 	}
 
 	// Initialize Database
-	db, err := database.New(cfg.Database)
+	err = database.New(cfg.Database)
 	if err != nil {
 		// Log error but maybe don't fail if DB is optional?
 		// For a framework, if DB config is present but fails, it should probably fail.
@@ -63,7 +61,6 @@ func New(configPath string) (*Application, error) {
 
 	return &Application{
 		Config: cfg,
-		DB:     db,
 		Server: srv,
 	}, nil
 }
@@ -81,4 +78,6 @@ func (a *Application) Run() error {
 func (a *Application) Close() {
 	// 刷新日志缓冲区
 	logger.Log().Sync()
+	// 关闭数据库连接
+	database.Close()
 }

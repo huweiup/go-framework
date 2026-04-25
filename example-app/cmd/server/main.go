@@ -20,7 +20,7 @@ func main() {
 	// }
 
 	// Register routes
-	v1.RegisterRoutes(a.Server.Engine, a.DB)
+	v1.RegisterRoutes(a.Server.Engine)
 
 	if err := a.Run(); err != nil {
 		log.Fatalf("failed to run app: %v", err)
