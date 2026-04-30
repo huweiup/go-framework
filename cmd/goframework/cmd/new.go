@@ -117,7 +117,7 @@ log:
   level: info
   encoding: console
 
-database:
+db:
   driver: mysql
   source: ***:***@tcp(localhost:3306)/test?charset=utf8mb4&parseTime=True&loc=Local
 `
@@ -138,9 +138,9 @@ func main() {
 		log.Fatalf("failed to initialize app: %v", err)
 	}
 
-	// Migrate database
+	// Migrate db
 	if err := a.DB.AutoMigrate(&models.User{}); err != nil {
-		log.Fatalf("failed to migrate database: %v", err)
+		log.Fatalf("failed to migrate db: %v", err)
 	}
 
 	// Register routes
@@ -169,20 +169,20 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/project/go-framework/pkg/database"
+	"github.com/project/go-framework/pkg/db"
 	"{{.ModuleName}}/internal/models"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
 type UserHandler struct {
-	Repo   *database.Repository[models.User]
+	Repo   *db.Repository[models.User]
 	Logger *zap.Logger
 }
 
 func RegisterRoutes(r *gin.Engine, db *gorm.DB, logger *zap.Logger) {
 	h := &UserHandler{
-		Repo:   database.NewRepository[models.User](db),
+		Repo:   db.NewRepository[models.User](db),
 		Logger: logger,
 	}
 

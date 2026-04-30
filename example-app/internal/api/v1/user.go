@@ -6,18 +6,18 @@ import (
 	"example-app/internal/models"
 
 	"github.com/gin-gonic/gin"
-	"github.com/huweiup/go-framework/pkg/database"
+	"github.com/huweiup/go-framework/pkg/db"
 	"go.uber.org/zap"
 )
 
 type UserHandler struct {
-	Repo   *database.Repository[models.User]
+	Repo   *db.Repository[models.User]
 	Logger *zap.Logger
 }
 
 func RegisterRoutes(r *gin.Engine) {
 	h := &UserHandler{
-		Repo: database.NewRepository[models.User](database.GetDB()),
+		Repo: db.NewRepository[models.User](db.GetDB()),
 	}
 
 	g := r.Group("/api/v1/users")

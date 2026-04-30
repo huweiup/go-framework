@@ -1,4 +1,4 @@
-package database
+package db
 
 import (
 	"fmt"
@@ -36,7 +36,7 @@ func TestNew(t *testing.T) {
 
 	err = New(cfg)
 	if err != nil {
-		t.Fatalf("failed to initialize database: %v", err)
+		t.Fatalf("failed to initialize db: %v", err)
 	}
 
 	users := make([]User, 0)

@@ -14,9 +14,9 @@ func main() {
 		log.Fatalf("failed to initialize app: %v", err)
 	}
 
-	// Migrate database
+	// Migrate db
 	// if err := a.DB.AutoMigrate(&models.User{}); err != nil {
-	// 	log.Fatalf("failed to migrate database: %v", err)
+	// 	log.Fatalf("failed to migrate db: %v", err)
 	// }
 
 	// Register routes

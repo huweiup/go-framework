@@ -2,6 +2,7 @@ package logger
 
 import (
 	"os"
+	"sync"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -9,6 +10,7 @@ import (
 )
 
 var log *zap.Logger
+var once sync.Once
 
 type Config struct {
 	Mode       string `mapstructure:"mode"` // dev, debug, release
@@ -21,70 +23,73 @@ type Config struct {
 }
 
 // New creates a new zap logger with the given configuration
-func New(cfg Config) error {
-	cfgLevel, err := zapcore.ParseLevel(cfg.Level)
-	if err != nil {
-		return err
-	}
+func New(cfg Config) (err error) {
+	once.Do(func() {
+		cfgLevel, e := zapcore.ParseLevel(cfg.Level)
+		if e != nil {
+			err = e
+			return
+		}
 
-	if cfg.Mode == "" {
-		cfg.Mode = "release"
-	}
+		if cfg.Mode == "" {
+			cfg.Mode = "release"
+		}
 
-	if cfg.MaxSize == 0 {
-		cfg.MaxSize = 100
-	}
-	if cfg.MaxBackups == 0 {
-		cfg.MaxBackups = 10
-	}
-	if cfg.MaxAge == 0 {
-		cfg.MaxAge = 30
-	}
+		if cfg.MaxSize == 0 {
+			cfg.MaxSize = 100
+		}
+		if cfg.MaxBackups == 0 {
+			cfg.MaxBackups = 10
+		}
+		if cfg.MaxAge == 0 {
+			cfg.MaxAge = 30
+		}
 
-	var encoder zapcore.Encoder
-	encoderConfig := zap.NewProductionEncoderConfig()
-	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+		var encoder zapcore.Encoder
+		encoderConfig := zap.NewProductionEncoderConfig()
+		encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 
-	if cfg.Encoding == "console" {
-		encoder = zapcore.NewConsoleEncoder(encoderConfig)
-	} else {
-		encoder = zapcore.NewJSONEncoder(encoderConfig)
-	}
+		if cfg.Encoding == "console" {
+			encoder = zapcore.NewConsoleEncoder(encoderConfig)
+		} else {
+			encoder = zapcore.NewJSONEncoder(encoderConfig)
+		}
 
-	infoWriter := &lumberjack.Logger{
-		Filename:   "./logs/info.log",
-		MaxSize:    cfg.MaxSize,
-		MaxBackups: cfg.MaxBackups,
-		MaxAge:     cfg.MaxAge,
-		Compress:   cfg.Compress,
-	}
-	errorWriter := &lumberjack.Logger{
-		Filename:   "./logs/error.log",
-		MaxSize:    cfg.MaxSize,
-		MaxBackups: cfg.MaxBackups,
-		MaxAge:     cfg.MaxAge,
-		Compress:   cfg.Compress,
-	}
+		infoWriter := &lumberjack.Logger{
+			Filename:   "./logs/info.log",
+			MaxSize:    cfg.MaxSize,
+			MaxBackups: cfg.MaxBackups,
+			MaxAge:     cfg.MaxAge,
+			Compress:   cfg.Compress,
+		}
+		errorWriter := &lumberjack.Logger{
+			Filename:   "./logs/error.log",
+			MaxSize:    cfg.MaxSize,
+			MaxBackups: cfg.MaxBackups,
+			MaxAge:     cfg.MaxAge,
+			Compress:   cfg.Compress,
+		}
 
-	infoLevel := zap.LevelEnablerFunc(func(level zapcore.Level) bool {
-		return level >= cfgLevel && level < zapcore.ErrorLevel
+		infoLevel := zap.LevelEnablerFunc(func(level zapcore.Level) bool {
+			return level >= cfgLevel && level < zapcore.ErrorLevel
+		})
+		errorLevel := zap.LevelEnablerFunc(func(level zapcore.Level) bool {
+			return level >= zapcore.ErrorLevel
+		})
+
+		infoCore := zapcore.NewCore(encoder, zapcore.AddSync(infoWriter), infoLevel)
+		errorCore := zapcore.NewCore(encoder, zapcore.AddSync(errorWriter), errorLevel)
+		var core zapcore.Core
+		if cfg.Mode == "dev" || cfg.Mode == "debug" {
+			stdCore := zapcore.NewCore(encoder, zapcore.AddSync(os.Stdout), zap.InfoLevel)
+			core = zapcore.NewTee(stdCore, infoCore, errorCore)
+		} else {
+			core = zapcore.NewTee(infoCore, errorCore)
+		}
+
+		log = zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel))
 	})
-	errorLevel := zap.LevelEnablerFunc(func(level zapcore.Level) bool {
-		return level >= zapcore.ErrorLevel
-	})
-
-	infoCore := zapcore.NewCore(encoder, zapcore.AddSync(infoWriter), infoLevel)
-	errorCore := zapcore.NewCore(encoder, zapcore.AddSync(errorWriter), errorLevel)
-	var core zapcore.Core
-	if cfg.Mode == "dev" || cfg.Mode == "debug" {
-		stdCore := zapcore.NewCore(encoder, zapcore.AddSync(os.Stdout), zap.InfoLevel)
-		core = zapcore.NewTee(stdCore, infoCore, errorCore)
-	} else {
-		core = zapcore.NewTee(infoCore, errorCore)
-	}
-
-	log = zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel))
-	return nil
+	return
 }
 
 func Log() *zap.Logger {

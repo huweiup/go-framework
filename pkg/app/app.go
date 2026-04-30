@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/huweiup/go-framework/pkg/config"
-	"github.com/huweiup/go-framework/pkg/database"
+	"github.com/huweiup/go-framework/pkg/db"
 	"github.com/huweiup/go-framework/pkg/logger"
 	"github.com/huweiup/go-framework/pkg/server"
 	"go.uber.org/zap"
@@ -12,10 +12,10 @@ import (
 
 // Config holds the complete configuration for the application
 type Config struct {
-	App      AppConfig       `mapstructure:"app"`
-	Log      logger.Config   `mapstructure:"log"`
-	Database database.Config `mapstructure:"database"`
-	Server   server.Config   `mapstructure:"server"`
+	App      AppConfig     `mapstructure:"app"`
+	Log      logger.Config `mapstructure:"log"`
+	Database db.Config     `mapstructure:"db"`
+	Server   server.Config `mapstructure:"server"`
 }
 
 type AppConfig struct {
@@ -43,14 +43,14 @@ func New(configPath string) (*Application, error) {
 	}
 
 	// Initialize Database
-	err = database.New(cfg.Database)
+	err = db.New(cfg.Database)
 	if err != nil {
 		// Log error but maybe don't fail if DB is optional?
 		// For a framework, if DB config is present but fails, it should probably fail.
 		// If DB config is empty, maybe skip?
 		// For now, let's assume if it fails, it's fatal.
-		logger.Log().Error("failed to initialize database", zap.Error(err))
-		return nil, fmt.Errorf("failed to initialize database: %w", err)
+		logger.Log().Error("failed to initialize db", zap.Error(err))
+		return nil, fmt.Errorf("failed to initialize db: %w", err)
 	}
 
 	// Initialize Server
@@ -79,5 +79,5 @@ func (a *Application) Close() {
 	// 刷新日志缓冲区
 	logger.Log().Sync()
 	// 关闭数据库连接
-	database.Close()
+	db.Close()
 }
