@@ -9,7 +9,6 @@ import (
 	"github.com/opslead/gormzap"
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	gormLogger "gorm.io/gorm/logger"
 	"gorm.io/plugin/dbresolver"
@@ -21,8 +20,11 @@ type Source struct {
 }
 
 type Config struct {
-	Driver string `mapstructure:"driver"` // mysql, sqlite
-	Source Source `mapstructure:"source"`
+	Driver       string `mapstructure:"driver"` // mysql
+	Source       Source `mapstructure:"source"`
+	MaxIdleConns int    `mapstructure:"max-idle-conns" json:"max-idle-conns" yaml:"max-idle-conns"` // 空闲中的最大连接数
+	MaxOpenConns int    `mapstructure:"max-open-conns" json:"max-open-conns" yaml:"max-open-conns"` // 打开到数据库的最大连接数
+
 }
 
 var gormDB *gorm.DB
@@ -37,8 +39,6 @@ func New(cfg Config) (e error) {
 		switch cfg.Driver {
 		case "mysql":
 			dialector = mysql.Open(cfg.Source.Master)
-		case "sqlite":
-			dialector = sqlite.Open(cfg.Source.Master)
 		default:
 			e = fmt.Errorf("unsupported db driver: %s", cfg.Driver)
 			return
@@ -76,8 +76,8 @@ func New(cfg Config) (e error) {
 		}
 
 		sqlDB, _ := db.DB()
-		sqlDB.SetMaxOpenConns(100)
-		sqlDB.SetMaxIdleConns(10)
+		sqlDB.SetMaxOpenConns(cfg.MaxOpenConns)
+		sqlDB.SetMaxIdleConns(cfg.MaxIdleConns)
 
 		gormDB = db
 	})

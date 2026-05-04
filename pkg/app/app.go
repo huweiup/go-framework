@@ -25,8 +25,8 @@ type AppConfig struct {
 
 // Application is the main container for the application components
 type Application struct {
-	Config Config
-	Server *server.Server
+	PkgConfig Config
+	Server    *server.Server
 }
 
 // New creates a new Application instance
@@ -60,17 +60,17 @@ func New(configPath string) (*Application, error) {
 	srv.Engine.Use(server.LoggerMiddleware(logger.Log()))
 
 	return &Application{
-		Config: cfg,
-		Server: srv,
+		PkgConfig: cfg,
+		Server:    srv,
 	}, nil
 }
 
 // Run starts the HTTP server
 func (a *Application) Run() error {
 	logger.Log().Info("Starting application",
-		zap.String("name", a.Config.App.Name),
-		zap.String("version", a.Config.App.Version),
-		zap.Int("port", a.Config.Server.Port),
+		zap.String("name", a.PkgConfig.App.Name),
+		zap.String("version", a.PkgConfig.App.Version),
+		zap.Int("port", a.PkgConfig.Server.Port),
 	)
 	return a.Server.Run()
 }
