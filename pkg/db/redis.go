@@ -10,7 +10,7 @@ type RedisConfig struct {
 
 var rdb *redis.Client
 
-func NewRedisClient(cfg *RedisConfig) {
+func NewRedisClient(cfg RedisConfig) {
 	rdb = redis.NewClient(&redis.Options{
 		Addr:     cfg.Addr,
 		Password: cfg.Password, // 没有密码，默认值
